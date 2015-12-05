@@ -3,8 +3,8 @@ module CodeClassifier
   # Your code goes here...
   class Detector
 
-		def initialize
-
+		def initialize(classifier)
+			@classifier = classifier
 		end
 
 		def predict(str)
@@ -24,9 +24,10 @@ module CodeClassifier
 			end
 		end
 
-		def load_from_file(file)
+		def self.load_from_file(file)
 			data = File.read(file)
-			@classifier = Marshal.load data
+			classifier = Marshal.load data
+			self.new(classifier)
 		end
 
 		def dump_to_file(file)
