@@ -24,6 +24,10 @@ module CodeClassifier
 			end
 		end
 
+		def self.default_detector
+			self.load_from_file(File.expand_path("../../../trained.dat", __FILE__))
+		end
+
 		def self.load_from_file(file)
 			data = File.read(file)
 			classifier = Marshal.load data
