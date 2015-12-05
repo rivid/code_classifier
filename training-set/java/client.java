@@ -297,3 +297,43 @@ public final class Client {
         public String ip = null;
     }
 }
+
+ 
+
+private static boolean toCalculateTime(Object args1,Object args2){
+    String begin = args1.toString(),end = args2.toString();
+    if(begin.length()!=4){
+        throw new RuntimeException(' 开始时间:'+args1+' 格式不正确 ，长度应该为4位 如:0830 ');
+    }else if( end.length()!=4){
+        throw new RuntimeException(' 结束时间:'+args2+' 格式不正确  ，长度应该为4位 如:1530 ');
+    }
+    try{
+        if(Integer.parseInt(begin)<1000){
+              
+        }
+    }catch(NumberFormatException e){
+        throw new NumberFormatException(' 开始时间:'+args1 +' 应该是整数 ');
+    }
+    SimpleDateFormat format = new SimpleDateFormat('yyyy-MM-dd [hhmm]:ss');
+    Date date = new Date(System.currentTimeMillis());
+    String str = format.format(date);
+    String var = str.substring(str.indexOf('[')+1, str.indexOf(']'));
+    String [] vars = var.split('');
+    String [] begins = begin.split('');
+    String [] ends = end.split('');
+    System.out.println('开始时间:'+args1+' 当前时间:'+var +' 结束时间:'+args2); 
+    int v_b = Integer.parseInt(vars[1]+vars[2]);
+    int v_e = Integer.parseInt(vars[3]+vars[4]);
+    int b_b = Integer.parseInt(begins[1]+begins[2]);
+    int b_e = Integer.parseInt(begins[3]+begins[4]);
+    int e_b = Integer.parseInt(ends[1]+ends[2]);
+    int e_e =  Integer.parseInt(ends[3]+ends[4]);
+    boolean firstBool = ((v_b>b_b||(v_b==b_b&&v_e>=b_e)) && (v_b<e_b||(v_b==e_b&&v_e<=e_e)));
+    boolean lastBool = ((v_b<b_b ||(v_b==b_b&&v_e<=b_e)) && (v_b<e_b||(v_b==e_b&&v_e<=e_e)));
+    boolean where = Integer.parseInt(begin)<Integer.parseInt(end);
+    if(where){
+        return firstBool;
+    }else{
+        return lastBool;
+    }
+}
