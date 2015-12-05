@@ -1,0 +1,207 @@
+#protip-grid-top.cf
+  %header.cf.grid-header
+    %input.network-search(type='text' value='search networks')
+    / %h1
+    /   All Networks
+    %ul.network-toplinks
+      %li
+        %a{:href => '/'}
+          Trending
+      %li
+        %a{:href => '/'}
+          %span
+            My networks
+      %li
+        %a.current{:href => '/'}
+          All networks
+.inside-main-content.cf
+  %ul.networks-filter
+    %li
+      %a.current{:href => '/'}
+        A - Z
+    %li
+      %a{:href => '/'}
+        Most upvotes
+    %li
+      %a{:href => '/'}
+        New users
+    %li
+      %a{:href => '/'}
+        New protips
+
+  %ol.networks-list
+
+    / A
+    %li.cf
+      %span.letter
+        A
+
+      /Network
+      .network.cf
+        %h2
+          %a{:href => '/'}
+            ActionScript
+        %ul.tips-and-users
+          %li
+            %a.users{:href => '/'}
+              Members
+              %span
+                13
+          %li
+            %a.tips{:href => '/'}
+              Protips
+              %span
+                13
+        %a.join{:href => '/'}
+          Join
+
+      /Network
+      .network.cf
+        %h2
+          %a.class{:href => '/'}
+            ActionScript
+        %ul.tips-and-users
+          %li
+            %a.users{:href => '/'}
+              Members
+              %span
+                13
+            %a.new{:href => '/'}
+              13
+
+          %li
+            %a.tips{:href => '/'}
+              Pro tips
+              %span
+                13
+            %a.new{:href => '/'}
+              13
+        %a.join.member{:href => '/'}
+          Member
+
+      /Network
+      .network.cf
+        %h2
+          %a{:href => '/'}
+            ActionScript
+        %ul.tips-and-users
+          %li
+            %a.users{:href => '/'}
+              Members
+              %span
+                13
+          %li
+            %a.tips{:href => '/'}
+              Protips
+              %span
+                13
+        %a.join{:href => '/'}
+          Join
+
+      /Network
+      .network.cf
+        %h2
+          %a.class{:href => '/'}
+            ActionScript
+        %ul.tips-and-users
+          %li
+            %a.users{:href => '/'}
+              Members
+              %span
+                13
+            %a.new{:href => '/'}
+              13
+
+          %li
+            %a.tips{:href => '/'}
+              Pro tips
+              %span
+                13
+            %a.new{:href => '/'}
+              13
+        %a.join.member{:href => '/'}
+          Member
+
+=content_for :body_id do
+  profile
+
+=content_for :javascript do
+  =javascript_include_tag 'users.js'
+
+-content_for :mixpanel do
+  -if viewing_self?
+    =record_view_event('own profile')
+  -else
+    =record_view_event('user profile')
+
+-content_for :credits do
+  -if @user.banner.blank?
+    =location_image_tag_credits_for(@user)
+    =link_to(image_tag('cclicense.png'), 'http://creativecommons.org/licenses/by-sa/2.0/', :target => :new)
+
+
+%section.profile{:itemscope => true, :itemtype => meta_person_schema_url}
+  .special-image
+    =location_image_tag_for(@user)
+    .business-card
+      =image_tag(users_image_path(@user), :class => 'profile-avatar', :width => 80, :height => 80, :itemprop => :image)
+      .bc-right
+        %h1{:itemprop => :name}=@user.display_name
+        -if signed_in?
+          %p.location{:itemscope => true, :itemtype => meta_address_schema_url, :itemprop => :address}=@user.location
+        %p.title{:itemprop => :title}=business_card_for(@user)
+      -if !@user.protips.empty? || viewing_self?
+        .user-pro-tip.cf
+          %a.pro-tip-number.track{:href => user_protips_path(@user.username), 'data-action' => 'view user protips', 'data-from' => 'profile card'}
+            %span= @user.protips.count
+            = @user.protips.count > 1 ? 'Pro Tip'.pluralize : 'Pro Tip'
+          .recent-pro-tip
+            -if viewing_self?
+              %a.tip.share-a-protip.track{:href => new_protip_path, 'data-action' => 'create protip', 'data-from' => 'profile card', 'title' => @user.skills.empty? ? "Fill out your profile by a
+                Share a Pro Tip
+            -else
+              %h4 Most recent Protip
+              - recent_protips(1).each do |protip|
+                = link_to protip.title, protip_path(protip.public_id), :class => 'track', 'data-action' => 'view protip', 'data-from' => 'profile card'
+
+  -if @user.skills.empty?
+    -if viewing_self?
+      .no-skills
+        %p
+          Adding a few skills you're good at will get you started earning some cred and unlocking achievements. Here are some suggestions:
+          %br
+          %br
+          %strong.no-skill Loving Visual Basic
+          %strong.no-skill IE6
+          %br
+        =link_to("Of course not, add a real skill", '#addskill', :class => 'add-skill track', 'data-action' => 'add skill', 'data-from' => 'profile (first skill)')
+        =render 'add_skill'
+  -else
+    .profile-head
+          %h2 Skills & Achievements
+      -if viewing_self?
+        =link_to('Add Skill', '#addskill', :class => 'add-skill track', 'data-action' => 'add skill', 'data-from' => 'profile')
+        =render 'add_skill'
+    %ul.skills
+      -@user.skills.each do |skill|
+        -cache ['v4', skill, skill.protips.size, skill.badges_count, skill.repos.count, signed_in?, viewing_self?] do
+          %li{:class => (skill.locked? ? 'locked' : 'unlocked')}
+            .skill-left
+              %h3=skill.name.downcase
+              %ul
+                -if skill.has_endorsements?
+                  %li==Received #{pluralize(skill.endorsements_count, 'endorsement')}
+                -if skill.has_repos?
+                  %li==Has open sourced #{pluralize(skill.repos.count, "#{skill.name.downcase} project")}
+                -if skill.has_events?
+                  %li=skill_event_message(skill)
+                -if skill.has_protips?
+                  %li==Has shared #{pluralize(skill.protips.count, 'original protip')}
+            .skill-right
+              -if skill.locked?
+                %p.help-text{'data-skill' => skill.id}=skill_help_text(skill)
+              -else
+                %ul
+                  -skill.matching_badges_in(@user.badges).each do |badge|
+                    %li=image_tag(badge.image_path, :title => badge.description, :class => 'tip')
+            .details.cf.hide
